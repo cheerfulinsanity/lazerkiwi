@@ -65,9 +65,8 @@
    <table style="display: none;">
     <thead>
      <tr>
-      <th>
-       Nickname
-      </th>
+      <th>Position</th>
+      <th>Nickname</th>
       <th>
        Rank
       </th>
@@ -96,23 +95,33 @@
                     .filter(([_, rank]) => rank !== null)
                     .sort((a, b) => b[1] - a[1]);
 
-                
-    const tbody = document.getElementById("rankTableBody");
-    const table = document.querySelector("table");
-    const loading = document.getElementById("loadingMessage");
-    
-                sortedEntries.forEach(([nickname, rankValue]) => {
+
+                const tbody = document.getElementById("rankTableBody");
+                const table = document.querySelector("table");
+                const loading = document.getElementById("loadingMessage");
+
+                sortedEntries.forEach(([nickname, rankValue], index) => {
                     const tr = document.createElement("tr");
+
+                    const tdPos = document.createElement("td");
+                    tdPos.textContent = index + 1;
+
                     const tdName = document.createElement("td");
                     tdName.textContent = nickname;
+
                     const tdRank = document.createElement("td");
                     tdRank.textContent = rankNumberToLabel(rankValue);
+
+                    tr.appendChild(tdPos);
                     tr.appendChild(tdName);
                     tr.appendChild(tdRank);
+
                     tbody.appendChild(tr);
+                });
+
                 loading.style.display = 'none';
                 table.style.display = 'table';
-                });
+
             });
    </script>
   </div>
