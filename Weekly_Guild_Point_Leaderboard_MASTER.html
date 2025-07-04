@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Weekly Guild Point Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      background-color: #000000;
+      color: #00FF00;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #00FF00;
+      font-size: 28px;
+      margin-top: 30px;
+    }
+
+    select {
+      margin-left: 10px;
+      padding: 6px 10px;
+      background-color: #000000;
+      color: #00FF00;
+      border: 2px solid #ab6e11;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    th, td {
+      border: 2px solid #ab6e11;
+      padding: 10px;
+      background-color: #000;
+    }
+
+    th {
+      background-color: #111;
+      font-size: 18px;
+    }
+
+    td {
+      font-size: 15px;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    #leaderboard-loading {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 20px auto;
+      animation: blink 1.5s step-end infinite;
+      color: #00FF00;
+    }
+  </style>
+</head>
+<body>
+<h2>Weekly Guild Point Leaderboard</h2>
+<div id="leaderboard-loading">Loading leaderboard...</div>
+<div id="leaderboard-content" style="display: none;">
+<label for="weekSelector">Select Week:</label>
+<select id="weekSelector"></select>
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Username</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody id="leaderboardBody"></tbody>
+</table>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const res = await fetch("https://script.google.com/macros/s/AKfycbz3txnsBI5fLUtGxuw2RwvUTlfTthoyNiufE3pdxEa0F4ESsMoN439s85T2C2da1Mg/exec");
+  const data = await res.json();
+
+  const dates = Object.keys(Object.values(data)[0]);
+  const weekSelector = document.getElementById("weekSelector");
+  const leaderboardBody = document.getElementById("leaderboardBody");
+  const loading = document.getElementById("leaderboard-loading");
+  const content = document.getElementById("leaderboard-content");
+
+  dates.forEach((date, index) => {
+    const option = document.createElement("option");
+    option.value = date;
+    option.textContent = date;
+    if (index === dates.length - 1) option.selected = true;
+    weekSelector.appendChild(option);
+  });
+
+  function renderLeaderboard(week) {
+    const leaderboard = [];
+
+    for (const player in data) {
+      const gain = parseFloat(data[player][week]);
+      if (!isNaN(gain)) {
+        leaderboard.push({ name: player, gain });
+      }
+    }
+
+    leaderboard.sort((a, b) => b.gain - a.gain);
+
+    leaderboardBody.innerHTML = "";
+    leaderboard.forEach((entry, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${entry.name}</td>
+        <td>${entry.gain}</td>
+      `;
+      leaderboardBody.appendChild(row);
+    });
+  }
+
+  weekSelector.addEventListener("change", () => {
+    renderLeaderboard(weekSelector.value);
+  });
+
+  renderLeaderboard(dates[dates.length - 1]);
+  loading.style.display = "none";
+  content.style.display = "block";
+});
+</script>
+</body>
+</html>
