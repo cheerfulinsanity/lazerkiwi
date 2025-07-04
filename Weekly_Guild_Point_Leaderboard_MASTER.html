@@ -1,142 +1,238 @@
-
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-<meta charset="utf-8"/>
-<title>Weekly Guild Point Leaderboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<style>
-    body {
-      background-color: #000000;
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Weekly Guild Point Leaderboard (Rebuilt)
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      background-color: #000;
       color: #00FF00;
       font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      margin: 0;
-      padding: 20px;
       text-align: center;
+      padding: 20px;
     }
-
     h2 {
-      color: #00FF00;
       font-size: 28px;
-      margin-top: 30px;
+      margin-top: 20px;
     }
-
     select {
       margin-left: 10px;
       padding: 6px 10px;
-      background-color: #000000;
+      background-color: #000;
       color: #00FF00;
       border: 2px solid #ab6e11;
       font-family: 'Orbitron', sans-serif;
     }
-
+    #toggle-columns-btn {
+      background-color: #ab6e11;
+      color: black;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-left: 20px;
+    }
     table {
       width: 80%;
       margin: 20px auto;
       border-collapse: collapse;
-      font-family: 'Orbitron', sans-serif;
     }
-
     th, td {
       border: 2px solid #ab6e11;
       padding: 10px;
       background-color: #000;
     }
-
     th {
       background-color: #111;
       font-size: 18px;
     }
-
     td {
       font-size: 15px;
     }
-
-    @keyframes blink {
-      50% { opacity: 0; }
+    .extra-col {
+      display: none;
     }
-
     #leaderboard-loading {
       font-size: 18px;
       font-weight: bold;
       margin: 20px auto;
-      animation: blink 1.5s step-end infinite;
       color: #00FF00;
+      animation: blink 1.5s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
     }
   </style>
-</head>
-<body>
-<h2>Weekly Guild Point Leaderboard</h2>
-<div id="leaderboard-loading">Loading leaderboard...</div>
-<div id="leaderboard-content" style="display: none;">
-<label for="weekSelector">Select Week:</label>
-<select id="weekSelector"></select>
-<table>
-<thead>
-<tr>
-<th>Position</th>
-<th>Username</th>
-<th>Points</th>
-</tr>
-</thead>
-<tbody id="leaderboardBody"></tbody>
-</table>
-</div>
+ </head>
+ <body>
+  <h2>
+   Weekly Guild Point Leaderboard
+  </h2>
+  <div>
+  </div>
+  <div id="leaderboard-loading">
+   Loading leaderboard...
+  </div>
+  <div id="leaderboard-controls" style="display: none; margin-bottom: 10px;">
+   <select id="weekSelector" style="font-family: Orbitron; background-color: black; color: #00FF00; border: 2px solid #ab6e11; padding: 5px; margin-right: 10px;">
+   </select>
+   <button id="toggle-columns-btn" style="font-family: Orbitron; background-color: black; color: #00FF00; border: 2px solid #ab6e11; padding: 5px;">
+    Toggle Total Points and 3-Week Avg
+   </button>
+  </div>
+  <div id="leaderboard-content" style="display: none;">
+   <div id="leaderboard-controls" style="display: flex; gap: 20px; align-items: center; justify-content: center; margin-bottom: 20px;">
+    <div>
+     <label for="weekSelector">
+      Select Week:
+     </label>
+     <select id="weekSelector">
+     </select>
+    </div>
+    <button id="toggle-columns-btn">
+     Toggle Total Points and 3-Week Avg
+    </button>
+   </div>
+   <table>
+    <thead>
+     <tr>
+      <th>
+       Position
+      </th>
+      <th>
+       Username
+      </th>
+      <th>
+       Points
+      </th>
+      <th class="extra-col">
+       Total Points
+      </th>
+      <th class="extra-col">
+       3-Week Avg
+      </th>
+     </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+    </tbody>
+   </table>
+  </div>
+  <script>
+   const endpoint = "https://script.google.com/macros/s/AKfycbxCm2fdYwdu-EHsDAT2AxnO6NsZ2d_mkg-4Meke-FTRBxTGEF5AmwLPifcbFOn5lYQY/exec";
+let gainData = {};
+let totalData = {};
+let allWeeks = [];
+let columnsVisible = false;
 
+function computeAverage(player, week) {
+  const i = allWeeks.indexOf(week);
+  if (week === "09/03") {
+    if (i < 1) return "";
+    const weeks = allWeeks.slice(i - 1, i + 1);
+    const values = weeks.map(w => parseFloat(gainData[player]?.[w] || 0));
+    return (values.reduce((a, b) => a + b, 0) / 2).toFixed(1);
+  }
+  if (i < 2) return "";
+  const weeks = allWeeks.slice(i - 2, i + 1);
+  const values = weeks.map(w => parseFloat(gainData[player]?.[w] || 0));
+  return (values.reduce((a, b) => a + b, 0) / 3).toFixed(1);
+}
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbz3txnsBI5fLUtGxuw2RwvUTlfTthoyNiufE3pdxEa0F4ESsMoN439s85T2C2da1Mg/exec");
-  const data = await res.json();
-
-  const dates = Object.keys(Object.values(data)[0]);
-  const weekSelector = document.getElementById("weekSelector");
-  const leaderboardBody = document.getElementById("leaderboardBody");
-  const loading = document.getElementById("leaderboard-loading");
-  const content = document.getElementById("leaderboard-content");
-
-  dates.forEach((date, index) => {
-    const option = document.createElement("option");
-    option.value = date;
-    option.textContent = date;
-    if (index === dates.length - 1) option.selected = true;
-    weekSelector.appendChild(option);
+function applyColumnVisibility(visible) {
+  document.querySelectorAll(".extra-col").forEach(col => {
+    col.style.display = visible ? "table-cell" : "none";
   });
+}
 
-  function renderLeaderboard(week) {
-    const leaderboard = [];
+function renderLeaderboard(week) {
+  const container = document.getElementById("leaderboard-content");
+  const tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Username</th>
+          <th>Points</th>
+          <th class="extra-col">Total Points</th>
+          ${
+            week === "02/03"
+              ? ""
+              : `<th class="extra-col">${week === "09/03" ? "2-Week Avg" : "3-Week Avg"}</th>`
+          }
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody"></tbody>
+    </table>
+  `;
+  container.innerHTML = tableHTML;
 
-    for (const player in data) {
-      const gain = parseFloat(data[player][week]);
-      if (!isNaN(gain)) {
-        leaderboard.push({ name: player, gain });
-      }
+  const tbody = document.getElementById("leaderboardBody");
+  const leaderboard = [];
+
+  for (const player in gainData) {
+    const gain = parseFloat(gainData[player][week]);
+    if (!isNaN(gain)) {
+      leaderboard.push({ name: player, gain });
     }
-
-    leaderboard.sort((a, b) => b.gain - a.gain);
-
-    leaderboardBody.innerHTML = "";
-    leaderboard.forEach((entry, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${entry.name}</td>
-        <td>${entry.gain}</td>
-      `;
-      leaderboardBody.appendChild(row);
-    });
   }
 
-  weekSelector.addEventListener("change", () => {
-    renderLeaderboard(weekSelector.value);
+  leaderboard.sort((a, b) => b.gain - a.gain);
+
+  leaderboard.forEach((entry, i) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${entry.name}</td>
+      <td>${entry.gain}</td>
+      <td class="extra-col">${totalData[entry.name]?.[week] || ""}</td>
+      ${
+        week === "02/03"
+          ? ""
+          : `<td class="extra-col">${computeAverage(entry.name, week)}</td>`
+      }
+    `;
+    tbody.appendChild(row);
   });
 
-  renderLeaderboard(dates[dates.length - 1]);
-  loading.style.display = "none";
-  content.style.display = "block";
-});
-</script>
-</body>
+  applyColumnVisibility(columnsVisible);
+  document.getElementById("leaderboard-loading").style.display = "none";
+  container.style.display = "block";
+}
+
+function toggleExtraColumns() {
+  columnsVisible = !columnsVisible;
+  applyColumnVisibility(columnsVisible);
+}
+
+document.getElementById("toggle-columns-btn").addEventListener("click", toggleExtraColumns);
+
+async function init() {
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  gainData = data.gains;
+  totalData = data.totals;
+  allWeeks = Object.keys(Object.values(gainData)[0]).filter(w => w !== "21/02");
+
+  const selector = document.getElementById("weekSelector");
+  allWeeks.forEach((week, i) => {
+    const opt = document.createElement("option");
+    opt.value = week;
+    opt.textContent = week;
+    if (i === allWeeks.length - 1) opt.selected = true;
+    selector.appendChild(opt);
+  });
+
+  document.getElementById('leaderboard-controls').style.display = 'block';
+  renderLeaderboard(selector.value);
+  selector.addEventListener("change", () => renderLeaderboard(selector.value));
+}
+
+init();
+  </script>
+ </body>
 </html>
