@@ -1,97 +1,120 @@
-# Lazer Kiwi Dota 2 Guild Website – Project README
+# LAZER KIWI GUILD WEBSITE – README
 
-Welcome to the modular, multi-tab website for the Lazer Kiwi Dota 2 guild. This site is built for presenting guild statistics, rankings, and player comparisons through clean visuals, interactive tools, and live Google Sheets integrations.
+Welcome to the Lazer Kiwi Dota 2 Guild Website!
+This modular HTML dashboard visualizes live guild stats, ranks, and weekly performance using Google Sheets endpoints.
 
----
+Maintained by: Bag of Dicks
 
-## 🔧 Modules Overview
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 MODULES OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Each tab is its own HTML module, linked via `index.html`:
 
-| Module                             | Purpose                                                        | Filename                                      |
-|------------------------------------|----------------------------------------------------------------|-----------------------------------------------|
-| Home Page                          | Welcome text, news feed, AI Kiwi art gallery                   | `Home_Page_MASTER.html`                       |
-| Turbo Rank Graphs                  | Line graphs of turbo rank progression over time                | `Turbo_Rank_Graphs_MASTER.html`              |
-| Party Average Rank Estimator       | Dropdown selector to estimate 5-player party rank              | `Party_Average_Rank_Estimator_MASTER.html`    |
-| Weekly Guild Point Leaderboard     | Weekly point gains, sortable table, 4-week average toggle      | `Weekly_Guild_Point_Leaderboard_MASTER.html`  |
-| Weekly Point Earning Graphs        | Graph comparing weekly points for 2 selected members           | `Weekly_Point_Earning_Graphs_MASTER.html`     |
-| Guild Estimated Turbo Rank List    | Rank estimates for all visible members from recent Turbo data  | `Guild_Estimated_Turbo_Rank_List_MASTER.html` |
-| Main Index Page                    | Integrates all tabs and banner into a cohesive UI              | `index.html`                                  |
+• Home_Page_MASTER.html
+  → Welcome message, visit counter, AI kiwi art, news feed (live).
 
----
+• Turbo_Rank_Graphs_MASTER.html
+  → Graphs turbo rank history for selected member (2-point line chart).
 
-## 🌐 Live Data Endpoints
+• Party_Average_Rank_Estimator_MASTER.html
+  → Estimates 5-player party rank using dropdowns (static dataset).
 
-These Google Apps Script endpoints feed live JSON data to different modules:
+• Weekly_Guild_Point_Leaderboard_MASTER.html
+  → Weekly gains, sortable columns, rolling average, toggleable total/avg.
 
-| Use Case                        | URL                                                                                             |
-|----------------------------------|--------------------------------------------------------------------------------------------------|
-| Turbo Rank Snapshots            | `https://script.google.com/macros/s/AKfycbzAOfvSd1CvLTCRj6YLlDLQEJSkfXHxvKE0PIhl5iU9gtTg3fVoE3mCn2M_aCI1OzL0hw/exec` |
-| Weekly Points (Leaderboard + Graphs) | `https://script.google.com/macros/s/AKfycbz3txnsBI5fLUtGxuw2RwvUTlfTthoyNiufE3pdxEa0F4ESsMoN439s85T2C2da1Mg/exec` |
-| Total Points + 3-Week Avg       | `https://script.google.com/macros/s/AKfycbxCm2fdYwdu-EHsDAT2AxnO6NsZ2d_mkg-4Meke-FTRBxTGEF5AmwLPifcbFOn5lYQY/exec` |
-| Visit Counter (Home Page)       | `https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec` |
-| News & Updates Feed             | `https://script.google.com/macros/s/AKfycbzO8o3mKTDxHg5L2FGYe_ClEQtVZDy2HTW1JkXGsF5XJEbFNIoKejOU4jSDJGzMfqyXMg/exec` |
+• Weekly_Point_Earning_Graphs_MASTER.html
+  → Graphs weekly point gain comparison (2 players, live data).
 
----
+• Guild_Estimated_Turbo_Rank_List_MASTER.html
+  → Current turbo rank snapshot list for public data players.
 
-## 🎨 Styling & Design
+• index.html
+  → Tabbed navigation integrating all modules into one unified layout.
 
-- **Font**: Orbitron (via Google Fonts)
-- **Colors**:
-  - Background: `#000000`
-  - Text/Highlight: `#00FF00` (neon green)
-  - Accent/Borders: `#ab6e11` (burnt orange)
-- **Kiwi Branding**: Includes `kiwi.png` and AI-generated images
-- **Graph Lines**:
-  - Player 1: Cyan `#00FFFF`
-  - Player 2: Pink `#FF6699`
-- **Style Themes**:
-  - Tabs and buttons with neon glows
-  - Futuristic font and layouts
-  - Hover and blink effects for interactivity
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌐 LIVE JSON ENDPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Turbo Rank History:
+   https://script.google.com/macros/s/AKfycbzAOfvSd1CvLTCRj6YLlDLQEJSkfXHxvKE0PIhl5iU9gtTg3fVoE3mCn2M_aCI1OzL0hw/exec
 
----
+2. Weekly Point Data (Leaderboard + Graphs):
+   https://script.google.com/macros/s/AKfycbz3txnsBI5fLUtGxuw2RwvUTlfTthoyNiufE3pdxEa0F4ESsMoN439s85T2C2da1Mg/exec
 
-## 🧱 Site Structure and Behavior
+3. Totals + 3/4-Week Average:
+   https://script.google.com/macros/s/AKfycbxCm2fdYwdu-EHsDAT2AxnO6NsZ2d_mkg-4Meke-FTRBxTGEF5AmwLPifcbFOn5lYQY/exec
 
-- `index.html` integrates all modules using `<iframe>`s under a tabbed navigation bar.
-- The banner image (`Banner.png`) is located at `home_gallery_assets/Banner.png`.
-- Tab content is styled and loaded efficiently without page reloads.
-- All scripts are inline within HTML for simplicity and performance.
-- Each module is responsible for one self-contained task, using live data where possible.
+4. Visit Counter (Home):
+   https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec
 
----
+5. News Feed (Home):
+   https://script.google.com/macros/s/AKfycbzO8o3mKTDxHg5L2FGYe_ClEQtVZDy2HTW1JkXGsF5XJEbFNIoKejOU4jSDJGzMfqyXMg/exec
 
-## 🔄 Special Behaviors
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎨 STYLING & VISUAL THEME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Background: #000000 (black)
+- Text/Highlight: #00FF00 (neon green)
+- Accent/Borders: #ab6e11 (burnt orange)
+- Font: Orbitron (Google Fonts)
+- Graph Line Colors:
+  • Player 1: Cyan (#00FFFF)
+  • Player 2: Pink (#FF6699)
+- Design Features:
+  • Neon glows, hover effects, tab UI
+  • All inline scripts for simplicity
+  • Blinking “loading” messages via CSS keyframes
 
-- **Leaderboard Columns**:
-  - Toggle reveals/hides Total and Avg columns.
-  - Columns adapt based on the week selected.
-- **News Feed**:
-  - Sorted by date (newest at top).
-  - Multiple posts on the same day are reversed so latest appears first.
-- **Rank Calculators**:
-  - Turbo averages are taken from most recent 15 solo matches (where public data is available).
-- **Charts**:
-  - Line graphs adapt to selected players and dates.
-  - Custom min/max Y-axis bounds per player.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 SPECIAL BEHAVIOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Weekly Leaderboard:
+  – Toggles extra columns (Total Points + 3/4 Week Avg)
+  – Column label changes by week (e.g. 2-Week Avg)
+  – Shader colors:
+      Purple – Top 3 Avg
+      Green  – Avg > 2000
+      Orange – 1000–2000
+      Red    – Avg < 1000
 
----
+• Turbo Graphs:
+  – Only 2 data points shown (minified display)
+  – Y-axis labels reflect rank names
+  – Dropdown filters players with data
 
-## 📁 File Conventions
+• Party Estimator:
+  – Dropdowns use static rank dataset
+  – Renders average rank using internal map
 
-- Master files use the `_MASTER.html` suffix.
-- Any edits must go through versioning (e.g., `_v2.html`, `_PATCHED_FIXED.html`).
-- Final working files confirmed by the user are marked with `_FINAL_FIXED.html`.
+• Visit Counter:
+  – Dev/local mode suppresses incrementing
+  – Value displayed with 🧿 icon
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📂 FILE RULES & VERSIONING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• All working files use `_MASTER.html`
+• New versions must follow suffix format:
+  _v2, _PATCHED, _FINAL_FIXED, etc.
+• You must request ChatGPT to implement any changes.
+• Manual edits to HTML files are discouraged.
 
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 INTEGRATION NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• All tabs are loaded into `index.html` using iframes.
+• Banner located at: `home_gallery_assets/Banner.png`
+• Image: `kiwi.png` used for future branding (not yet embedded).
 
-## 🚧 Future Ideas
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 MAINTENANCE & EXTENSIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ideas for future:
+• Add Dota stats (e.g., winrate overlays)
+• Discord bot integration
+• Guild member bios
+• Steam image avatars
+• Auto match updates (scraping or API)
 
-- Add Dota 2 stats overlays (e.g., win rate)
-- Discord bot integration for live leaderboard pings
-- Guild member bios / profile pages
-- Automated match scraping updates
-
----
-
-Maintained by the Bag of Dicks. Updates and ideas welcome via Discord.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF README
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
