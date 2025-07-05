@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
  <head>
@@ -69,6 +70,22 @@
   (which I have managed to scrape from the Stratz website using the console commands and performed various manipulations on).
   I don't pretend it's perfectly accurate, but it's probably fairly good, and I'm quite proud of it :)
   </p>
+
+  <div id="visit-counter" style="margin: 20px auto; font-size: 18px; color: #00FF00;">
+    Loading visit count...
+  </div>
+  <script>
+    fetch("https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec")
+      .then(response => response.json())
+      .then(data => {
+        const count = data.visits || 0;
+        document.getElementById("visit-counter").textContent = `👁️‍🗨️ This page has been visited ${count} times.`;
+      })
+      .catch(() => {
+        document.getElementById("visit-counter").textContent = `Unable to load visit count.`;
+      });
+  </script>
+
   <a class="discord-button" href="https://discord.gg/jPtne9AhGS" style="; margin-bottom: 20px;" target="_blank">
    Join Our Discord
   </a>
