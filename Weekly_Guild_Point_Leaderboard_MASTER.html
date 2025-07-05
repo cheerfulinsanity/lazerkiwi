@@ -1,238 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <title>
-   Weekly Guild Point Leaderboard (Rebuilt)
-  </title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<head>
+  <meta charset="UTF-8">
+  <title>Weekly Guild Point Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-   body {
+    body {
       background-color: #000;
       color: #00FF00;
       font-family: 'Orbitron', sans-serif;
       text-align: center;
-      padding: 20px;
     }
-    h2 {
-      font-size: 28px;
+    #controls {
       margin-top: 20px;
+      display: none;
     }
-    select {
-      margin-left: 10px;
-      padding: 6px 10px;
-      background-color: #000;
+    select, button {
+      background: black;
       color: #00FF00;
       border: 2px solid #ab6e11;
-      font-family: 'Orbitron', sans-serif;
-    }
-    #toggle-columns-btn {
-      background-color: #ab6e11;
-      color: black;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: bold;
       font-size: 16px;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
-      margin-left: 20px;
+      font-family: 'Orbitron', sans-serif;
+      padding: 5px 10px;
     }
     table {
-      width: 80%;
       margin: 20px auto;
       border-collapse: collapse;
+      width: 80%;
     }
     th, td {
-      border: 2px solid #ab6e11;
+      border: 1px solid #ab6e11;
       padding: 10px;
-      background-color: #000;
     }
     th {
       background-color: #111;
-      font-size: 18px;
     }
-    td {
-      font-size: 15px;
+    th.sortable:hover {
+      cursor: pointer;
+      background-color: #222;
     }
-    .extra-col {
-      display: none;
+    th.sorted {
+      position: relative;
     }
-    #leaderboard-loading {
-      font-size: 18px;
-      font-weight: bold;
-      margin: 20px auto;
+    th.sorted::after {
+      content: attr(data-sort-arrow);
+      position: absolute;
+      right: 10px;
       color: #00FF00;
-      animation: blink 1.5s step-end infinite;
+      font-size: 16px;
     }
-    @keyframes blink {
+    .blinker {
+      animation: blinker 1.5s linear infinite;
+    }
+    @keyframes blinker {
       50% { opacity: 0; }
     }
-  </style>
- </head>
- <body>
-  <h2>
-   Weekly Guild Point Leaderboard
-  </h2>
-  <div>
-  </div>
-  <div id="leaderboard-loading">
-   Loading leaderboard...
-  </div>
-  <div id="leaderboard-controls" style="display: none; margin-bottom: 10px;">
-   <select id="weekSelector" style="font-family: Orbitron; background-color: black; color: #00FF00; border: 2px solid #ab6e11; padding: 5px; margin-right: 10px;">
-   </select>
-   <button id="toggle-columns-btn" style="font-family: Orbitron; background-color: black; color: #00FF00; border: 2px solid #ab6e11; padding: 5px;">
-    Toggle Total Points and 3-Week Avg
-   </button>
-  </div>
-  <div id="leaderboard-content" style="display: none;">
-   <div id="leaderboard-controls" style="display: flex; gap: 20px; align-items: center; justify-content: center; margin-bottom: 20px;">
-    <div>
-     <label for="weekSelector">
-      Select Week:
-     </label>
-     <select id="weekSelector">
-     </select>
+  
+    .shader-purple { background-color: rgba(180, 85, 255, 0.25); }  /* Royal shimmer */
+    .shader-green  { background-color: rgba(0, 255, 100, 0.20); }   /* Soft neon green */
+    .shader-orange { background-color: rgba(255, 100, 0, 0.25); }   /* Fiery caution */
+    .shader-red    { background-color: rgba(255, 0, 0, 0.25); }     /* Red alert */
+
+</style>
+</head>
+<body>
+  <h1>Weekly Guild Point Leaderboard</h1>
+
+  <div id="controls">
+
+    <div id="legend" style="margin: 10px auto 20px auto; font-size: 14px; color: #ab6e11;">
+      <strong>Player Health Check (based on 4-week rolling average):</strong><br><br>
+      <span class="shader-purple" style="padding: 2px 8px; border-radius: 6px;">Purple - Top 3</span> &nbsp;
+      <span class="shader-green" style="padding: 2px 8px; border-radius: 6px;">Green - Doing Well</span> &nbsp;
+      <span class="shader-orange" style="padding: 2px 8px; border-radius: 6px;">Orange - In Danger</span> &nbsp;
+      <span class="shader-red" style="padding: 2px 8px; border-radius: 6px;">Red - Kick Zone</span>
     </div>
-    <button id="toggle-columns-btn">
-     Toggle Total Points and 3-Week Avg
-    </button>
-   </div>
-   <table>
-    <thead>
-     <tr>
-      <th>
-       Position
-      </th>
-      <th>
-       Username
-      </th>
-      <th>
-       Points
-      </th>
-      <th class="extra-col">
-       Total Points
-      </th>
-      <th class="extra-col">
-       3-Week Avg
-      </th>
-     </tr>
-    </thead>
-    <tbody id="leaderboardBody">
-    </tbody>
-   </table>
+
+    <select id="weekSelector"></select>
+    <button id="toggleButton">Toggle Total Points and 4-Week Avg</button>
   </div>
+
+  
+  <div id="leaderboardContainer">
+    <p class="blinker" id="loading">Loading leaderboard...</p>
+  </div>
+
   <script>
-   const endpoint = "https://script.google.com/macros/s/AKfycbxCm2fdYwdu-EHsDAT2AxnO6NsZ2d_mkg-4Meke-FTRBxTGEF5AmwLPifcbFOn5lYQY/exec";
-let gainData = {};
-let totalData = {};
-let allWeeks = [];
-let columnsVisible = false;
+    let leaderboardData = {};
+    let totalData = {};
+    let showExtraCols = false;
+let top3Names = [];
+    let currentSort = { column: 'gain', descending: true };
 
-function computeAverage(player, week) {
-  const i = allWeeks.indexOf(week);
-  if (week === "09/03") {
-    if (i < 1) return "";
-    const weeks = allWeeks.slice(i - 1, i + 1);
-    const values = weeks.map(w => parseFloat(gainData[player]?.[w] || 0));
-    return (values.reduce((a, b) => a + b, 0) / 2).toFixed(1);
-  }
-  if (i < 2) return "";
-  const weeks = allWeeks.slice(i - 2, i + 1);
-  const values = weeks.map(w => parseFloat(gainData[player]?.[w] || 0));
-  return (values.reduce((a, b) => a + b, 0) / 3).toFixed(1);
-}
-
-function applyColumnVisibility(visible) {
-  document.querySelectorAll(".extra-col").forEach(col => {
-    col.style.display = visible ? "table-cell" : "none";
-  });
-}
-
-function renderLeaderboard(week) {
-  const container = document.getElementById("leaderboard-content");
-  const tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Position</th>
-          <th>Username</th>
-          <th>Points</th>
-          <th class="extra-col">Total Points</th>
-          ${
-            week === "02/03"
-              ? ""
-              : `<th class="extra-col">${week === "09/03" ? "2-Week Avg" : "3-Week Avg"}</th>`
-          }
-        </tr>
-      </thead>
-      <tbody id="leaderboardBody"></tbody>
-    </table>
-  `;
-  container.innerHTML = tableHTML;
-
-  const tbody = document.getElementById("leaderboardBody");
-  const leaderboard = [];
-
-  for (const player in gainData) {
-    const gain = parseFloat(gainData[player][week]);
-    if (!isNaN(gain)) {
-      leaderboard.push({ name: player, gain });
+    async function fetchData() {
+      const url = 'https://script.google.com/macros/s/AKfycbxCm2fdYwdu-EHsDAT2AxnO6NsZ2d_mkg-4Meke-FTRBxTGEF5AmwLPifcbFOn5lYQY/exec';
+      const response = await fetch(url);
+      const json = await response.json();
+      leaderboardData = json.gains;
+      totalData = json.totals;
+      populateWeekSelector();
     }
-  }
 
-  leaderboard.sort((a, b) => b.gain - a.gain);
+    function populateWeekSelector() {
+      let weeks = Object.keys(Object.values(leaderboardData)[0] || {}).filter(w => w !== '21/02')
+        .sort((a,b)=>new Date(a.split('/').reverse().join('/')) - new Date(b.split('/').reverse().join('/')));
+      const selector = document.getElementById("weekSelector");
+      selector.innerHTML = '';
+      weeks.forEach(week => {
+        const option = document.createElement("option");
+        option.value = week;
+        option.textContent = week;
+        selector.appendChild(option);
+      });
+      const latestWeek = weeks[weeks.length - 1];
+      selector.value = latestWeek;
+      renderLeaderboard(latestWeek);
+      document.getElementById("controls").style.display = 'block';
+    }
 
-  leaderboard.forEach((entry, i) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${entry.name}</td>
-      <td>${entry.gain}</td>
-      <td class="extra-col">${totalData[entry.name]?.[week] || ""}</td>
-      ${
-        week === "02/03"
-          ? ""
-          : `<td class="extra-col">${computeAverage(entry.name, week)}</td>`
+    document.getElementById("weekSelector").addEventListener("change", e => renderLeaderboard(e.target.value));
+    document.getElementById("toggleButton").addEventListener("click", () => {
+      showExtraCols = !showExtraCols;
+      renderLeaderboard(document.getElementById("weekSelector").value);
+    });
+
+    function renderLeaderboard(week) {
+      const container = document.getElementById("leaderboardContainer");
+      container.innerHTML = '';
+
+      let data = [];
+      for (const player in leaderboardData) {
+        const weeks = Object.keys(leaderboardData[player]).filter(w => w !== '21/02')
+          .sort((a,b)=>new Date(a.split('/').reverse().join('/')) - new Date(b.split('/').reverse().join('/')));
+        const weekIndex = weeks.indexOf(week);
+        const joined = weeks.slice(0, weekIndex + 1).some(w => leaderboardData[player][w] > 0);
+        if (!joined || leaderboardData[player][week] === undefined) continue;
+
+        const gain = parseInt(leaderboardData[player][week] ?? 0, 10);
+        const { avg, note, raw } = computeAverage(player, week, weeks);
+        data.push({
+          name: player,
+          gain: isNaN(gain) ? 0 : gain,
+          total: parseInt(totalData[player]?.[week] ?? 0, 10),
+          avgDisplay: note ? avg + '*' : avg,
+          avgSort: raw
+        });
       }
-    `;
-    tbody.appendChild(row);
-  });
 
-  applyColumnVisibility(columnsVisible);
-  document.getElementById("leaderboard-loading").style.display = "none";
-  container.style.display = "block";
-}
+      data.sort((a, b) => {
+        const aVal = currentSort.column === 'avg' ? a.avgSort : a[currentSort.column];
+        const bVal = currentSort.column === 'avg' ? b.avgSort : b[currentSort.column];
+        return currentSort.descending ? bVal - aVal : aVal - bVal;
+      });
 
-function toggleExtraColumns() {
-  columnsVisible = !columnsVisible;
-  applyColumnVisibility(columnsVisible);
-}
+      
+      top3Names = data
+        .slice()
+        .sort((a, b) => b.avgSort - a.avgSort)
+        .slice(0, 3)
+        .map(p => p.name);
 
-document.getElementById("toggle-columns-btn").addEventListener("click", toggleExtraColumns);
+    const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
 
-async function init() {
-  const res = await fetch(endpoint);
-  const data = await res.json();
-  gainData = data.gains;
-  totalData = data.totals;
-  allWeeks = Object.keys(Object.values(gainData)[0]).filter(w => w !== "21/02");
+      const headers = [
+        { label: 'Position', key: null },
+        { label: 'Player', key: 'name' },
+        { label: 'Points', key: 'gain' },
+        { label: 'Total', key: 'total' },
+        { label: '4-Week Avg', key: 'avg' }
+      ];
 
-  const selector = document.getElementById("weekSelector");
-  allWeeks.forEach((week, i) => {
-    const opt = document.createElement("option");
-    opt.value = week;
-    opt.textContent = week;
-    if (i === allWeeks.length - 1) opt.selected = true;
-    selector.appendChild(opt);
-  });
-
-  document.getElementById('leaderboard-controls').style.display = 'block';
-  renderLeaderboard(selector.value);
-  selector.addEventListener("change", () => renderLeaderboard(selector.value));
-}
-
-init();
-  </script>
- </body>
-</html>
+      headers.forEach(({ label, key }) => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        if (key) {
+          th.classList.add('sortable');
+          if (currentSort.column === key) {
+            th.classList.add('sorted');
+            th.setAttribute('data-sort-arrow', currentS
