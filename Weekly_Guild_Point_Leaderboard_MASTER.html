@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Weekly Guild Point Leaderboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<title>Weekly Guild Point Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       background-color: #000;
       color: #00FF00;
@@ -64,28 +65,22 @@
 </style>
 </head>
 <body>
-  <h1>Weekly Guild Point Leaderboard</h1>
-
-  <div id="controls">
-
-    <div id="legend" style="margin: 10px auto 20px auto; font-size: 14px; color: #ab6e11;">
-      <strong>Player Health Check (based on 4-week rolling average):</strong><br><br>
-      <span class="shader-purple" style="padding: 2px 8px; border-radius: 6px;">Purple - Top 3</span> &nbsp;
-      <span class="shader-green" style="padding: 2px 8px; border-radius: 6px;">Green - Doing Well</span> &nbsp;
-      <span class="shader-orange" style="padding: 2px 8px; border-radius: 6px;">Orange - In Danger</span> &nbsp;
+<h1>Weekly Guild Point Leaderboard</h1>
+<div id="controls">
+<div id="legend" style="margin: 10px auto 20px auto; font-size: 14px; color: #ab6e11;">
+<strong>Player Health Check (based on 4-week rolling average):</strong><br/><br/>
+<span class="shader-purple" style="padding: 2px 8px; border-radius: 6px;">Purple - Top 3</span>  
+      <span class="shader-green" style="padding: 2px 8px; border-radius: 6px;">Green - Doing Well</span>  
+      <span style="background-color: rgba(255, 215, 50, 0.35); color: #000; padding: 2px 8px; border-radius: 6px;">Yellow - In Danger</span>  
       <span class="shader-red" style="padding: 2px 8px; border-radius: 6px;">Red - Kick Zone</span>
-    </div>
-
-    <select id="weekSelector"></select>
-    <button id="toggleButton">Toggle Total Points and 4-Week Avg</button>
-  </div>
-
-  
-  <div id="leaderboardContainer">
-    <p class="blinker" id="loading">Loading leaderboard...</p>
-  </div>
-
-  <script>
+</div>
+<select id="weekSelector"></select>
+<button id="toggleButton">Toggle Total Points and 4-Week Avg</button>
+</div>
+<div id="leaderboardContainer">
+<p class="blinker" id="loading">Loading leaderboard...</p>
+</div>
+<script>
     let leaderboardData = {};
     let totalData = {};
     let showExtraCols = false;
@@ -210,7 +205,11 @@ let top3Names = [];
           const td = document.createElement("td");
           td.textContent = val;
           if ((i === 3 || i === 4) && !showExtraCols) td.style.display = 'none';
-          if (i === 1 || i === 4) td.classList.add(shaderClass);
+          if (shaderClass === 'shader-orange' && (i === 1 || i === 4)) {
+            td.style.backgroundColor = 'rgba(255, 215, 50, 0.35)';  // toned futuristic yellow
+          } else if (i === 1 || i === 4) {
+            td.classList.add(shaderClass);
+          }
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
