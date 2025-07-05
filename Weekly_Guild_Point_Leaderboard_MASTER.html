@@ -71,7 +71,7 @@
 <strong>Player Health Check (based on 4-week rolling average):</strong><br/><br/>
 <span class="shader-purple" style="padding: 2px 8px; border-radius: 6px;">Purple - Top 3</span>  
       <span class="shader-green" style="padding: 2px 8px; border-radius: 6px;">Green - Doing Well</span>  
-      <span style="background-color: rgba(255, 215, 50, 0.35); color: #000; padding: 2px 8px; border-radius: 6px;">Yellow - In Danger</span>  
+      <span style="background-color: rgba(255, 180, 0, 0.4); color: #000; padding: 2px 8px; border-radius: 6px;">Yellow - In Danger</span>  
       <span class="shader-red" style="padding: 2px 8px; border-radius: 6px;">Red - Kick Zone</span>
 </div>
 <select id="weekSelector"></select>
@@ -206,7 +206,7 @@ let top3Names = [];
           td.textContent = val;
           if ((i === 3 || i === 4) && !showExtraCols) td.style.display = 'none';
           if (shaderClass === 'shader-orange' && (i === 1 || i === 4)) {
-            td.style.backgroundColor = 'rgba(255, 215, 50, 0.35)';  // toned futuristic yellow
+            td.style.backgroundColor = 'rgba(255, 180, 0, 0.4)';  // toned futuristic yellow
           } else if (i === 1 || i === 4) {
             td.classList.add(shaderClass);
           }
