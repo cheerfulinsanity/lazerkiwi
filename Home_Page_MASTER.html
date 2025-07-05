@@ -75,21 +75,23 @@
     Loading visit count...
   </div>
   <script>
-  if (!localStorage.getItem("lk_dev")) {
+    const visitCounterEl = document.getElementById("visit-counter");
+    const isDev = localStorage.getItem("lk_dev");
 
     fetch("https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec")
       .then(response => response.json())
       .then(data => {
         const count = data.visits || 0;
-        document.getElementById("visit-counter").textContent = `👁️‍🗨️ This page has been visited ${count} times.`;
+        if (isDev) {
+          visitCounterEl.textContent = `👁️‍🗨️ This page has been visited ${count} times. (dev mode: not counted)`;
+        } else {
+          visitCounterEl.textContent = `👁️‍🗨️ This page has been visited ${count} times.`;
+        }
       })
       .catch(() => {
-        document.getElementById("visit-counter").textContent = `Unable to load visit count.`;
+        visitCounterEl.textContent = `Unable to load visit count.`;
       });
-    } else {
-    document.getElementById("visit-counter").textContent = "Visit counter disabled for you (dev mode).";
-  }
-</script>
+  </script>
 
   <a class="discord-button" href="https://discord.gg/jPtne9AhGS" style="; margin-bottom: 20px;" target="_blank">
    Join Our Discord
