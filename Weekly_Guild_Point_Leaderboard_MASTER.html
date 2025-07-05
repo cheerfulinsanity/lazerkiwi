@@ -179,4 +179,73 @@ let top3Names = [];
           th.classList.add('sortable');
           if (currentSort.column === key) {
             th.classList.add('sorted');
-            th.setAttribute('data-sort-arrow', currentS
+            th.setAttribute('data-sort-arrow', currentSort.descending ? '↓' : '↑');
+          }
+          th.addEventListener("click", () => {
+            if (currentSort.column === key) currentSort.descending = !currentSort.descending;
+            else currentSort = { column: key, descending: true };
+            renderLeaderboard(week);
+          });
+          if ((label === 'Total' || label === '4-Week Avg') && !showExtraCols) th.style.display = 'none';
+        }
+        headRow.appendChild(th);
+      });
+
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      data.forEach(({ name, gain, total, avgDisplay }, index) => {
+        const tr = document.createElement("tr");
+
+        const avgValue = data[index].avgSort;
+        const playerName = data[index].name;
+        let shaderClass = '';
+        if (top3Names.includes(playerName)) shaderClass = 'shader-purple';
+        else if (avgValue > 2000) shaderClass = 'shader-green';
+        else if (avgValue >= 1000) shaderClass = 'shader-orange';
+        else shaderClass = 'shader-red';
+
+        [index + 1, name, gain, total, avgDisplay].forEach((val, i) => {
+          const td = document.createElement("td");
+          td.textContent = val;
+          if ((i === 3 || i === 4) && !showExtraCols) td.style.display = 'none';
+          if (i === 1 || i === 4) td.classList.add(shaderClass);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+
+      if (showExtraCols) {
+        const note = document.createElement("p");
+        note.textContent = "* indicates average figures calculated using less than 4 weeks";
+        note.style.fontSize = '14px';
+        note.style.color = '#ab6e11';
+        container.appendChild(note);
+      }
+
+      document.getElementById("loading")?.remove();
+      document.getElementById("controls").style.display = 'block';
+    }
+
+    function computeAverage(player, currentWeek, sortedWeeks) {
+      const index = sortedWeeks.indexOf(currentWeek);
+      const validWeeks = sortedWeeks.slice(0, index + 1);
+      const scores = validWeeks.map(w => {
+        const val = leaderboardData[player][w];
+        return typeof val === 'number' ? val : (typeof val === 'string' ? parseInt(val, 10) : 0);
+      }).filter(x => x > 0);
+      if (scores.length === 0) return { avg: 0, note: false, raw: 0 };
+      const useLength = Math.min(scores.length, 4);
+      const recentScores = scores.slice(-useLength);
+      const avg = Math.round(recentScores.reduce((a, b) => a + b, 0) / recentScores.length);
+      return { avg, note: recentScores.length < 4, raw: avg };
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
