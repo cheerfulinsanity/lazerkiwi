@@ -77,13 +77,16 @@
   <script>
     const visitCounterEl = document.getElementById("visit-counter");
     const isDev = localStorage.getItem("lk_dev");
+    const isLocal = location.protocol === "file:";
+    const baseURL = "https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec";
+    const endpoint = (!isDev && !isLocal) ? baseURL + "?increment=true" : baseURL;
 
-    fetch("https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec")
+    fetch(endpoint)
       .then(response => response.json())
       .then(data => {
         const count = data.visits || 0;
-        if (isDev) {
-          visitCounterEl.textContent = `👁️‍🗨️ This page has been visited ${count} times. (dev mode: not counted)`;
+        if (isDev || isLocal) {
+          visitCounterEl.textContent = `👁️‍🗨️ This page has been visited ${count} times. (dev mode or local: not counted)`;
         } else {
           visitCounterEl.textContent = `👁️‍🗨️ This page has been visited ${count} times.`;
         }
