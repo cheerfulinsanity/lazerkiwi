@@ -122,29 +122,42 @@ button:hover, select:hover {
       31: "Divine 1 Star", 32: "Divine 2 Star", 33: "Divine 3 Star", 34: "Divine 4 Star", 35: "Divine 5 Star"
     };
 
-    const rankData = {
-      "Mickymicee": 28, "Babumboclaat": 24, "Mugen": 22, "Joe Dirt": 15, "Unkn0wn-": 17, "SeedyBiscuit": 17, "Slipstream": 15,
-      "Big Ol' Bag O' Dicks": 15, "Singularity": 15, "GoodMAx": 15, "Onemahu": 14, "Kaief": 13, "TurtleOmatic": 12,
-      "gavinng88": 12, "sedgy fergo": 9, "Beans": 9, "Canvas": 11, "GreekGod": 9, "StingKing": 7, "Squoogle": 7,
-      "Object": 11, "FierceX": 30, "JayJay": 27, "JB HIFI": 26, "𝕱𝖊𝖆𝖗𝕱𝖎𝖈𝖙": 25, "Q-Q Plot": 22, "Microsoft Outage": 22,
-      "LunchyyyYYyyyYyYyyyYYYyYyyYyyyYy": 21, "Frags": 20, "zueldakma": 16, "The presence of your savior": 15,
-      "george": 15, "Papa Shirogane (luciferous)": 15, "KumaraBones": 13, "DopaminE": 13, "Meta": 13,
-      "Chicken Crimpy": 12, "dazed": 12, "Meromero": 12, "Throbbin Hood": 11, "ʑΩR⨂Θ™": 11, "Blanket": 9,
-      "ItsAllGravy": 9, "PKMKB": 8, "Stiffcarrott": 7, "Headache": 7, "Tilda.Daniel": 7,
-      "y all say I'm dope I just smirk": 7, "BatSoupNZ": 15
-    };
+    
+const selects = ["player1", "player2", "player3", "player4", "player5"];
+const rankData = {};
+const endpoints = [
+  "https://script.google.com/macros/s/AKfycbzjviloMAM-KHYnkDDiPiFvR-nqDqauAm2XAsHWolH4JTWloINQ8tWGrO17GwHFKKP1Ow/exec",
+  "https://script.google.com/macros/s/AKfycbzSbehUm4C_SqZT3_ol8--cwDR-ADzc0qvUJ09UA9pMuu1-Um9oYdDhY-Ry5tk4_SxC/exec"
+];
 
-    const selects = ["player1", "player2", "player3", "player4", "player5"];
-
-    for (let id of selects) {
-      const sel = document.getElementById(id);
-      Object.keys(rankData).sort().forEach(name => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        sel.appendChild(opt);
-      });
+Promise.all(endpoints.map(url => fetch(url).then(r => r.json()))).then(results => {
+  results.forEach(data => {
+    for (const player in data) {
+      const val = data[player];
+      if (typeof val === "number") {
+        rankData[player] = val;
+      } else if (typeof val === "object") {
+        const dates = Object.keys(val).sort((a, b) => new Date(b) - new Date(a));
+        for (const date of dates) {
+          if (val[date] !== null) {
+            rankData[player] = val[date];
+            break;
+          }
+        }
+      }
     }
+  });
+  const names = Object.keys(rankData).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  for (let id of selects) {
+    const sel = document.getElementById(id);
+    names.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+  }
+});
 
     function calculateAverage() {
       const players = selects.map(id => document.getElementById(id).value).filter(Boolean);
